@@ -1,43 +1,63 @@
 <template>
-  <el-card class="node-details" header="节点详情：">
-    <div v-if="node">
-      <el-table
-        :data="formattedNodeDetails"
-        style="width: 100%;"
-        :fit="false"
-      >
-        <el-table-column
-          prop="key"
-          label="属性"
-          width="100px"
-        >
-        </el-table-column>
-        <el-table-column
-          prop="value"
-          label="值"
-          min-width="200px" 
-        >
-        </el-table-column>
-      </el-table>
-    </div>
-    <div v-else>
-      <p>请点击具体的节点。</p>
-    </div>
-  </el-card>
+  <div v-if="node" class="node-details">
+    <h2>节点详情</h2>
+    <h2>ID: {{ node.id }}</h2>
+    <h2>标签: {{ node.label }}</h2>
+    <table>
+      <tbody>
+        <tr v-for="(value, key) in filteredProperties" :key="key">
+          <th>{{ translateKey(key) }}:</th>
+          <td>{{ value }}</td>
+        </tr>
+        <tr v-if="node.properties.imageUrl">
+          <th>{{ translateKey('imageUrl') }}:</th>
+          <td><img :src="getImageUrl(node.properties.imageUrl)" alt="Node Image" style="max-width: 100px; max-height: 100px;"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </template>
 
 <script>
 export default {
   props: {
-    node: Object
+    node: {
+      type: Object,
+      default: () => ({ properties: {} })
+    }
   },
   computed: {
-    formattedNodeDetails() {
-      if (!this.node) return [];
-      return Object.entries(this.node).map(([key, value]) => ({
-        key,
-        value
-      }));
+    filteredProperties() {
+      // 创建一个没有 imageUrl 的新对象
+      const props = {...this.node.properties};
+      delete props.imageUrl;  // 移除 imageUrl 属性
+      return props;
+    }
+  },
+  methods: {
+    translateKey(key) {
+      const translations = {
+        name: '名称',
+        birthday: '出生日期',
+        courtesyName: '字',
+        pseudonym: '号',
+        era: '时代',
+        occupation: '职业',
+        works: '作品',
+        nativePlace: '籍贯',
+        description: '描述',
+        imageUrl: '图片',
+        period: '时期',
+        city: '城市',
+        title: '标题',
+        author: '作者',
+        verses: '诗句',
+        creationBackground: '创作背景'
+      };
+      return translations[key] || key;  // 如果没有找到翻译，则返回原属性名
+    },
+    getImageUrl(imageFileName) {
+      return require(`@/assets/${imageFileName}`);  // 根据项目结构调整路径
     }
   }
 }
@@ -45,22 +65,24 @@ export default {
 
 <style scoped>
 .node-details {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  padding: 20px;
+  margin-top: 20px;
+}
+.node-details h2 {
+  color: #333;
+  margin-bottom: 20px;
+}
+table {
   width: 100%;
-  height: 500px;  
-  overflow: auto;  
+  border-collapse: collapse;
+  margin-top: 10px;
 }
-
-.node-details .el-table {
-  width: 100%!important;
-  min-height: 100%; 
-  table-layout: fixed;
-}
-
-.node-details .el-table .cell {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+th, td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
 }
 </style>
-
-

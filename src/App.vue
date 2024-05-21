@@ -1,16 +1,10 @@
 <template>
-  <div class="app-container">
-
-    <div class="details-container">
-      <graph-stats />
-      <node-details :node="selectedNode"/>
-    </div>
+  <div id="app">
     <div class="network-container">
-      <search-bar @search-submitted="handleSearch"/>
-      <nodes-list @node-selected="handleNodeSelected"/>
+      <nodes-list @node-selected="handleNodeSelected" />
     </div>
-    <div class="answers-container">
-      <answers-display :answer="searchAnswer"/>
+    <div class="details-container">
+      <node-details :node="selectedNode" />
     </div>
   </div>
 </template>
@@ -18,68 +12,49 @@
 <script>
 import NodesList from './components/NodesList.vue';
 import NodeDetails from './components/NodeDetails.vue';
-import SearchBar from './components/SearchBar.vue';
-import AnswersDisplay from './components/AnswersDisplay.vue';
-import GraphStats from './components/GraphStats.vue';
-import axios from 'axios';
 
 export default {
   components: {
     NodesList,
-    NodeDetails,
-    SearchBar,
-    AnswersDisplay,
-    GraphStats
+    NodeDetails
   },
   data() {
     return {
-      selectedNode: null,
-      searchAnswer: null
+      selectedNode: null
     };
   },
   methods: {
     handleNodeSelected(node) {
       this.selectedNode = node;
-    },
-    handleSearch(query) {
-      const url = "http://localhost:8888";  // API的地址
-      const data = {
-        prompt: query,
-        history: [],  // 根据需要初始化历史数据
-        max_length: 2048,
-        top_p: 0.7,
-        temperature: 0.95
-      };
-
-      axios.post(url, data)
-        .then(response => {
-          if (response.data && response.status === 200) {
-            this.searchAnswer = response.data.response;
-          } else {
-            this.searchAnswer = "发生了错误，请检查模型服务器。";
-          }
-        })
-        .catch(error => {
-          console.error("请求模型服务失败:", error);
-          this.searchAnswer = "请求失败，请检查模型服务器。";
-        });
+      if (node.label.includes('Person')) { // 检查是否为人物节点
+      console.log("Name:", node.properties.name); // 打印名字
+      console.log("Birth Date:", node.properties.birthDate); // 打印出生日期
+      // 可以继续添加更多的属性打印
     }
-
+    }
   }
 }
 </script>
 
 <style>
-.app-container {
+#app {
   display: flex;
-  justify-content: space-between;
+  height: 100vh;
 }
-.answers-container, .details-container {
-  flex: 25%;
-  padding: 20px;
+
+.details-container {
+  flex: 30%;
+  overflow: auto;
+  border-right: 1px solid #ccc;
 }
+
 .network-container {
-  flex: 50%;
-  padding: 20px;
+  flex: 60%;
+  overflow: hidden;
+}
+
+.answers-container {
+  flex: 20%;
+  border-left: 1px solid #ccc;
 }
 </style>
